@@ -1,7 +1,11 @@
 
 using CopilotAdherence.Configurations;
+using CopilotAdherence.Features.WeatherForecast;
 using CopilotAdherence.Settings;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using System.Reflection;
 
 namespace CopilotAdherence
 {
@@ -15,8 +19,14 @@ namespace CopilotAdherence
             // Add the Controllers service to the DI container
             builder.Services.AddControllers();
 
+            // Register MediatR handlers
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+
             // Add the Endpoints API Explorer service which is required for Swagger
             builder.Services.AddEndpointsApiExplorer();
+
+            // Add custom services
+            builder.Services.AddScopedServicesCustom();
 
             // Add custom Swagger generation services
             builder.Services.AddSwaggerGenCustom();

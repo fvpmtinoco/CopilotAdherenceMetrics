@@ -1,4 +1,6 @@
-﻿using CopilotAdherence.Settings;
+﻿using CopilotAdherence.Features.WeatherForecast;
+using CopilotAdherence.Settings;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -12,44 +14,48 @@ namespace CopilotAdherence.Controllers
     [Route("[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly Jwt _jwtSettings;
+        private readonly IMediator _mediator;
 
-        public AuthController(IOptions<Jwt> jwtSettings)
+        public AuthController(IMediator mediator)
         {
-            _jwtSettings = jwtSettings.Value;
+            _mediator = mediator;
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            // Validate the user's credentials (this is just a placeholder - replace with your actual validation logic)
-            if (model.Username == "test" && model.Password == "password")
-            {
-                var claims = new[]
-                {
-                new Claim(JwtRegisteredClaimNames.Sub, model.Username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            };
+            var result = await _mediator.Send(new LoginCommand(request.Username, request.Password));
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-                var token = new JwtSecurityToken(_jwtSettings.Issuer,
-                    _jwtSettings.Audience,
-                    claims,
-                    expires: DateTime.Now.AddMinutes(30),
-                    signingCredentials: creds);
-
-                return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-            }
+            if (result != null)
+                return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(result) });
 
             return Unauthorized();
         }
     }
 
-    public class LoginModel
+    public class LoginCommandHandler : IRequestHandler<LoginCommand, JwtSecurityToken?>
+    {
+        private readonly ILoginService _loginService;
+
+        public LoginCommandHandler(ILoginService loginService)
+        => _loginService = loginService;
+
+        public async Task<JwtSecurityToken?> Handle(LoginCommand command, CancellationToken cancellationToken)
+            => await _loginService.ValidCredentials(command.Username, command.Password);
+    }
+
+
+    public record LoginRequest
     {
         public string Username { get; set; }
         public string Password { get; set; }
+    }
+
+
+
+    public class LoginCommand(string username, string password) : IRequest<JwtSecurityToken?>
+    {
+        public string Username => username;
+        public string Password => password;
     }
 }
