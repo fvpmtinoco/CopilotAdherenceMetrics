@@ -2,3 +2,4 @@
 obj
 appsettings.Development.json
 .vs
+docker-compose.override.yml

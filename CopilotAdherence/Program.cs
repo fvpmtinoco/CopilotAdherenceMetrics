@@ -1,11 +1,8 @@
 
 using CopilotAdherence.Configurations;
-using CopilotAdherence.Features.WeatherForecast;
+using CopilotAdherence.Database.Contexts;
 using CopilotAdherence.Settings;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using System.Reflection;
 
 namespace CopilotAdherence
 {
@@ -18,6 +15,9 @@ namespace CopilotAdherence
 
             // Add the Controllers service to the DI container
             builder.Services.AddControllers();
+
+            // Add MongoDB context
+            builder.Services.AddSingleton<MongoDbContext>();
 
             // Register MediatR handlers
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
@@ -36,6 +36,7 @@ namespace CopilotAdherence
 
             // Register Jwt settings to the DI container
             builder.Services.Configure<Jwt>(jwtSettings);
+            builder.Services.Configure<ConnectionStrings>(builder.Configuration.GetSection(nameof(ConnectionStrings)));
 
             // Add custom authentication services
             builder.Services.AddAuthenticationCustom(jwtSettings);

@@ -10,7 +10,7 @@ namespace CopilotAdherence.Configurations
             var allTypes = Assembly.GetExecutingAssembly().GetTypes();
 
             // Filter the types to only include classes that end with "Service"
-            var serviceTypes = allTypes.Where(t => t.IsClass && t.Name.EndsWith("Service"));
+            var serviceTypes = allTypes.Where(t => t.IsClass && (t.Name.EndsWith("Service") || t.Name.EndsWith("Repository")));
 
             // Register each service type with the DI container
             foreach (var type in serviceTypes)
