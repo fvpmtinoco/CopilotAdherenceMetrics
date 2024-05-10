@@ -7,17 +7,14 @@ using MongoDB.Bson;
 
 namespace Features.WeatherForecast.Create;
 
-[ApiController]
-[Route("[controller]")]
-public class CreateController : ControllerBase
+public class CreateController : WeatherForecastControllerBase
 {
     private readonly IMediator _mediator;
 
     public CreateController(IMediator mediator)
         => _mediator = mediator;
 
-    [HttpPost]
-    [ActionName("create")]
+    [HttpPost, ActionName("create")]
     public async Task<ActionResult<Forecast>> Create(CreateForecastRequest request)
     {
         await _mediator.Send(request);
@@ -44,7 +41,7 @@ public class CreateForecastRequestHandler : IRequestHandler<CreateForecastReques
             Summary = request.CreateForecast.Summary
         };
 
-        await _forecastService.CreateWeatherForecasAsync(forecast);
+        await _forecastService.CreateWeatherForecastAsync(forecast);
     }
 
 }

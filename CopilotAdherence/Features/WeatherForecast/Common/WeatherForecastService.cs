@@ -5,7 +5,7 @@ namespace CopilotAdherence.Features.WeatherForecast.Common
     public interface IWeatherForecastService
     {
         Task<IEnumerable<Forecast>> ListWeatherForecastsAsync();
-        Task CreateWeatherForecasAsync(Forecast forecast);
+        Task CreateWeatherForecastAsync(Forecast forecast);
     }
 
     public class WeatherForecastService : IWeatherForecastService
@@ -22,7 +22,7 @@ namespace CopilotAdherence.Features.WeatherForecast.Common
             return await _repository.GetWeatherForecastsAsync();
         }
 
-        public async Task CreateWeatherForecasAsync(Forecast forecast)
+        public async Task CreateWeatherForecastAsync(Forecast forecast)
         {
             await _repository.CreateWeatherForecastAsync(forecast);
         }

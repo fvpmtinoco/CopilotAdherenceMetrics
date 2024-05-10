@@ -7,15 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace CopilotAdherence.Features.WeatherForecast.List;
 
 //[Authorize]
-[ApiController]
-[Route("[controller]")]
-public class ListController(IMediator mediator, ILogger<ListController> logger) : ControllerBase
+public class ListController(IMediator mediator, ILogger<ListController> logger) : WeatherForecastControllerBase
 {
     private readonly IMediator _mediator = mediator;
     private readonly ILogger _logger = logger;
 
-    [HttpGet]
-    [ActionName("list")]
+    [HttpGet, ActionName("list")]
     public async Task<IEnumerable<Forecast>> List()
     {
         return await _mediator.Send(new ListForecastsRequest());

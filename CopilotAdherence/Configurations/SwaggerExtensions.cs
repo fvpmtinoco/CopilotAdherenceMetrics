@@ -7,9 +7,22 @@ namespace CopilotAdherence.Configurations
         // Define an extension method on IServiceCollection
         public static IServiceCollection AddSwaggerGenCustom(this IServiceCollection services)
         {
+
             // Add Swagger generation services
             services.AddSwaggerGen(c =>
             {
+                // Custom grouping logic
+                c.TagActionsBy(api =>
+                {
+                    // Split the route template to get a segment that will be used for grouping
+                    var route = api.RelativePath.Split('/')[1].Split('.')[0];
+                    var method = api.HttpMethod;
+                    return new List<string> { route };
+                });
+
+                // Ensure the actions are ordered in the document as they appear in the controller
+                c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
+
                 // Define a Swagger document for version 1 of the API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CoPilot Adherence Metrics", Version = "v1" });
 

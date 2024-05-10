@@ -19,6 +19,9 @@ namespace CopilotAdherence
             // Add MongoDB context
             builder.Services.AddSingleton<MongoDbContext>();
 
+            // Add auto mapper
+            builder.Services.AddAutoMapper(typeof(Program));
+
             // Register MediatR handlers
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
 
@@ -37,6 +40,7 @@ namespace CopilotAdherence
             // Register Jwt settings to the DI container
             builder.Services.Configure<Jwt>(jwtSettings);
             builder.Services.Configure<ConnectionStrings>(builder.Configuration.GetSection(nameof(ConnectionStrings)));
+            builder.Services.Configure<GitHubSettings>(builder.Configuration.GetSection(nameof(GitHubSettings)));
 
             // Add custom authentication services
             builder.Services.AddAuthenticationCustom(jwtSettings);
