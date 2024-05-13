@@ -1,7 +1,12 @@
 
 using CopilotAdherence.Configurations;
 using CopilotAdherence.Database.Contexts;
+using CopilotAdherence.Features.Metrics.Common;
+using CopilotAdherence.Hangfire;
 using CopilotAdherence.Settings;
+using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.Redis.StackExchange;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace CopilotAdherence
@@ -45,13 +50,28 @@ namespace CopilotAdherence
             // Add custom authentication services
             builder.Services.AddAuthenticationCustom(jwtSettings);
 
+            // Add hangfire configuration services
+            builder.Services.AddHangfireCustom(builder.Configuration.GetSection(nameof(ConnectionStrings)));
+
             // Build the application
             var app = builder.Build();
+
+            // Enable middleware to serve Hangfire Dashboard without authentication
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new AllowAllDashboardAuthorizationFilter() }
+            });
 
             // If the environment is Development
             // {
             // Enable middleware to serve generated Swagger as a JSON endpoint
             app.UseSwagger();
+
+            // Get the Hangfire server instance to create a scope for job activation
+            var backgroundJobClient = app.Services.GetRequiredService<IBackgroundJobClient>();
+
+            // Schedule recurring jobs
+            app.UseHangfireJobs();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint
@@ -78,6 +98,14 @@ namespace CopilotAdherence
 
             // Run the application
             app.Run();
+        }
+    }
+
+    public class AllowAllDashboardAuthorizationFilter : IDashboardAuthorizationFilter
+    {
+        public bool Authorize(DashboardContext context)
+        {
+            return true; // Allows external access to the dashboard without any authorization
         }
     }
 }

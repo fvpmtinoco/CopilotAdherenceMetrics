@@ -2,7 +2,7 @@
 
 namespace CopilotAdherence.Configurations
 {
-    public static class ScopedServicesExtensioncs
+    public static class ScopedServicesExtension
     {
         public static IServiceCollection AddScopedServicesCustom(this IServiceCollection collection)
         {

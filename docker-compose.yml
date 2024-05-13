@@ -1,8 +1,37 @@
 version: '3.8'
 
 services:
-  copilotadherence:
-    image: ${DOCKER_REGISTRY-}copilotadherence
-    build:
-      context: CopilotAdherence
-      dockerfile: Dockerfile
+    copilotadherence:
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:443;http://+:80
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=YourPassword
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+            - MongoDbConnection=mongodb://mongo:27017/CopilotMetrics
+        ports:
+            - "31500:80"
+            - "31501:443"
+        volumes:
+            - C:\Users\USER\.aspnet\https:/https:ro  # location of the dev-cert, read-only mode
+
+        build: 
+            context: CopilotAdherence
+            dockerfile: Dockerfile
+
+        depends_on:
+          - mongo
+    mongo:
+        image: mongo
+        ports:
+        - "27017:27017"
+        volumes:
+        - mongodata:/data/db
+    redis:
+        image: "redis:latest"
+        ports:
+        - "6379:6379"
+        volumes:
+        - redis_data:/data
+volumes:
+    mongodata:
+    redis_data:
