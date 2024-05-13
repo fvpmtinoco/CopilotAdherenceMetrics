@@ -2,13 +2,13 @@
 using CopilotAdherence.Features.Metrics.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace CopilotAdherence.Features.Metrics.List
 {
-    public class ListController(IMediator mediator, ILogger<ListController> logger) : MetricsControllerBase
+    public class ListController(IMediator mediator) : MetricsControllerBase
     {
         private readonly IMediator _mediator = mediator;
-        private readonly ILogger _logger = logger;
 
         /// <summary>
         /// List daily metrics

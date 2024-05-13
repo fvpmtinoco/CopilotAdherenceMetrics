@@ -5,10 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace CopilotAdherence.Features.Metrics.Retrieve
 {
     //[Authorize]
-    public class RetrieveController(IMediator mediator, ILogger<RetrieveController> logger) : MetricsControllerBase
+    public class RetrieveController(IMediator mediator) : MetricsControllerBase
     {
         private readonly IMediator _mediator = mediator;
-        private readonly ILogger _logger = logger;
 
         /// <summary>
         /// Retrieve data from Github API

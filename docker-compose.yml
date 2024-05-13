@@ -32,6 +32,32 @@ services:
         - "6379:6379"
         volumes:
         - redis_data:/data
+    seq:
+        image: datalust/seq:latest
+        environment:
+          - ACCEPT_EULA=Y
+        ports:
+          - "5341:80"
+        volumes:
+          - seq-data:/data
+    loki:
+        image: grafana/loki:latest
+        ports:
+            - "3100:3100"
+        command: -config.file=/etc/loki/local-config.yaml
+        volumes:
+            - loki-data:/loki
+    grafana:
+        image: grafana/grafana:latest
+        depends_on:
+          - loki
+        ports:
+          - "3000:3000"
+        volumes:
+          - grafana-data:/var/lib/grafana
 volumes:
     mongodata:
     redis_data:
+    seq-data:
+    loki-data:
+    grafana-data:

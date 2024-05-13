@@ -7,7 +7,12 @@ using CopilotAdherence.Settings;
 using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.Redis.StackExchange;
+using MediatR;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+using Serilog.Sinks.Grafana.Loki;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using System.Reflection;
 
 namespace CopilotAdherence
 {
@@ -17,6 +22,25 @@ namespace CopilotAdherence
         {
             // Create a new WebApplication builder
             var builder = WebApplication.CreateBuilder(args);
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()  // This will print logs to the console as well
+                .WriteTo.Seq("http://seq:80")
+                .WriteTo.GrafanaLoki("http://loki:3100/loki/api/v1/push")
+                .CreateLogger();
+
+            Log.Information("Starting application");
+
+
+            //Log.Logger = new LoggerConfiguration()
+            //    .MinimumLevel.Verbose()
+            //    .Enrich.FromLogContext()
+            //    .WriteTo.Seq("http://seq:80")  // Replace with your Seq server URL
+            //    //.WriteTo.GrafanaLoki("http://seq:3100/loki/api/v1/push", labels: new List<LokiLabel>() { applicationLabel })
+            //    .CreateLogger();
+
 
             // Add the Controllers service to the DI container
             builder.Services.AddControllers();
@@ -29,6 +53,8 @@ namespace CopilotAdherence
 
             // Register MediatR handlers
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
+
+            builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
             // Add the Endpoints API Explorer service which is required for Swagger
             builder.Services.AddEndpointsApiExplorer();
@@ -52,6 +78,12 @@ namespace CopilotAdherence
 
             // Add hangfire configuration services
             builder.Services.AddHangfireCustom(builder.Configuration.GetSection(nameof(ConnectionStrings)));
+
+            var applicationLabel = new LokiLabel()
+            {
+                Key = "Application",
+                Value = Assembly.GetExecutingAssembly().GetName().Name + "temp2"
+            };
 
             // Build the application
             var app = builder.Build();
@@ -98,6 +130,8 @@ namespace CopilotAdherence
 
             // Run the application
             app.Run();
+
+            Log.CloseAndFlush();
         }
     }
 

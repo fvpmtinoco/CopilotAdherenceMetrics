@@ -1,7 +1,6 @@
 ﻿using CopilotAdherence.Hangfire;
 using Hangfire;
 using Hangfire.Redis.StackExchange;
-using Microsoft.OpenApi.Models;
 
 namespace CopilotAdherence.Configurations;
 
