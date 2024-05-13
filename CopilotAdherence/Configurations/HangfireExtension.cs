@@ -28,7 +28,7 @@ public static class HangfireExtension
     {
         // Schedule recurring jobs
         var recurringJobManager = app.ApplicationServices.GetRequiredService<IRecurringJobManager>();
-        recurringJobManager.AddOrUpdate<MetricsJob>(
+        recurringJobManager.AddOrUpdate<IMetricsJob>(
             "Github API data retrieval",
             job => job.RetrieveMetricsAsync(),
             Cron.Daily

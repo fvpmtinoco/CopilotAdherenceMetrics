@@ -2,7 +2,12 @@
 
 namespace CopilotAdherence.Hangfire
 {
-    public class MetricsJob
+    public interface IMetricsJob
+    {
+        Task RetrieveMetricsAsync();
+    }
+
+    public class MetricsJob : IMetricsJob
     {
         private readonly IMetricsService _metricsService;
 
